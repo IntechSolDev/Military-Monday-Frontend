@@ -1,0 +1,255 @@
+import { FlatList, StyleSheet, Text, TouchableOpacity, RefreshControl, View } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
+import Styles from '../../../../../Globalstyle/Index'
+import Button from '../../../../../Components/Button'
+import { useSelector } from 'react-redux'
+import { _getSlots } from '../../../../../Utils/Apis'
+import Loader from '../../../../../Components/Loader'
+import moment from 'moment'
+const Slots = ({ route, navigation }) => {
+    const { data } = route.params;
+    console.log("dataaa", data)
+    const { user } = useSelector(
+        ({ AuthenticationReducer }) => AuthenticationReducer,
+    );
+    const currentDate = moment().format("YYYY-MM-DD");
+    const [selectedItem, setselectedItem] = useState([])
+    const [selectedItem1, setselectedItem1] = useState([])
+    const [extraData, setextraData] = useState(false)
+    const [refresh, setrefresh] = useState(false);
+
+    const [fItem, setFItem] = useState([])
+    const [Page, setPage] = useState(0)
+    const [loader, setloader] = useState(false)
+    const userToken = user.token
+    const onEndReachedCalledDuringMomentum = useRef(true)
+    console.log("selectedItemselectedItem", fItem)
+
+    useEffect(() => {
+        _Slots(userToken);
+        let dummy2 = []
+        selectedItem.forEach(element => {
+            dummy2.push(selectedItem1[element])
+        });
+        console.log("1")
+        setFItem(dummy2)
+    }, [selectedItem])
+    const _Slots = (uToken) => {
+        setloader(true)
+        const formData = new FormData()
+        formData.append('date', currentDate);
+        const Token = uToken
+        fetch(`https://intechsol-developer.co/military-monday/api/get-slots?page${Page}`, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${Token}`
+            },
+            body: formData
+        })
+            .then(response => response.json()).then((json) => {
+                setloader(false)
+                setextraData(true)
+                setselectedItem1([...selectedItem1, ...json.slot_list.data])
+            }).catch((error) => {
+                setloader(false)
+                console.log("Error", error)
+            })
+    }
+
+
+    const _checkData = (id) => {
+        console.log("itemmm + index", id)
+        if (selectedItem.length > 0) {
+            // setFItem([])
+            let y = selectedItem.findIndex((index) => index == id)
+
+            if (selectedItem.length <= 2 || y != -1) {
+                if (y != -1) {
+                    let arr = [...selectedItem]
+                    arr.splice(y, 1)
+                    setselectedItem(arr)
+                } else {
+                    if (parseInt(selectedItem[0]) < id) {
+                        if (parseInt(selectedItem[0]) + 3 > id) {
+                            setselectedItem([...selectedItem, id])
+                            let dummy2 = []
+                            selectedItem.forEach(element => {
+                                dummy2.push(selectedItem1[element])
+                            });
+                            console.log("1")
+                            setFItem(dummy2)
+                        }
+
+                    }
+                    else {
+                        if (parseInt(selectedItem[0]) - 3 < id) {
+                            setselectedItem([...selectedItem, id])
+                            let dummy2 = []
+                            selectedItem.forEach(element => {
+                                console.log("element", element)
+                                dummy2.push(selectedItem1[element])
+                            });
+                            console.log("dumy222 in f else", dummy2)
+                            console.log("2")
+
+                            setFItem(dummy2)
+                        }
+                    }
+
+                }
+            }
+            else {
+                alert("Maximum selection is 3")
+            }
+
+        } else {
+            setselectedItem([...selectedItem, id])
+            let dummy2 = []
+            selectedItem.forEach(element => {
+                dummy2.push(selectedItem1[element])
+            });
+            console.log("dumy222 in else", dummy2)
+            setFItem(dummy2)
+            console.log("3")
+
+
+        }
+
+    }
+
+    console.log("selectedItem", selectedItem)
+    const _reFreshPage = () => {
+        setrefresh(true)
+        const formData = new FormData()
+        formData.append('date', currentDate);
+        fetch(`https://intechsol-developer.co/military-monday/api/get-slots?page${Page}`, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${userToken}`
+            },
+            body: formData
+        })
+            .then(response => response.json()).then((json) => {
+                setrefresh(false)
+                setextraData(true)
+                setselectedItem1([...selectedItem1, ...json.slot_list.data])
+            }).catch((error) => {
+                setrefresh(false)
+                console.log("Error", error)
+            })
+
+    };
+
+    const _idchecker = (id) => {
+        if (selectedItem.length > 0) {
+            let y = selectedItem.findIndex((index) => index == id)
+            if (y != -1) {
+                return true
+            }
+            else {
+                return false
+            }
+        } else {
+            return false
+        }
+
+    }
+
+
+
+    return (
+        <View style={styles.container}>
+            {/* {loader && <Loader />} */}
+
+            <FlatList
+                numColumns={4}
+                contentContainerStyle={styles.fliststyle}
+                data={selectedItem1}
+                onMomentumScrollBegin={() => { onEndReachedCalledDuringMomentum.current = false }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refresh} onRefresh={_reFreshPage} />
+                }
+                extraData={extraData}
+                onEndThreshold={10}
+
+                onEndReached={(e) => {
+                    setPage(setPage(Page + 1))
+                }}
+                renderItem={({ item, index }) => {
+                    return (
+                        <View>
+                           
+                            <View
+                               
+                                style={[styles.slotView,
+                                {
+                                    backgroundColor: _idchecker(index) ? Styles.PrimaryColor : 'white'
+                                }]}
+                            >
+                                <Text style={[styles.timeTxt, { color: _idchecker(index) ? "#fff" : '#000' }]}>{item.slot}</Text>
+                            </View>
+                            <TouchableOpacity 
+                             style={[styles.slotView1,
+                                {
+                                    // backgroundColor: _idchecker(index) ? Styles.PrimaryColor : 'white'
+                                }]}
+
+                            disabled={item.is_avaliable === false ? true : false}
+                                onPress={() => _checkData(index)}>
+
+                            </TouchableOpacity>
+                        </View>
+                    )
+
+                }}
+            />
+            <View style={{ paddingBottom: 12, paddingHorizontal: 24 }}>
+                <Button title={"Next"} onPress={() => navigation.navigate("Summary", { data: { data, fItem } })} />
+            </View>
+        </View>
+    )
+}
+
+export default Slots
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: Styles.bgColor
+    },
+    fliststyle: {
+        justifyContent: 'center',
+        marginTop: 6,
+        paddingBottom: 30,
+        alignItems: 'center'
+    },
+    slotView: {
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: Styles.PrimaryColor,
+        borderRadius: 5,
+        width: 80, margin: 4, backgroundColor: '#fff'
+    },
+    slotView1: {
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: Styles.PrimaryColor,
+        borderRadius: 5,
+        position:'absolute',
+        zIndex:10,
+        width: 80, margin: 4, backgroundColor: 'tranpaarent'
+    },
+    timeTxt: {
+        fontSize: 14,
+        fontFamily: Styles.Regular
+    }
+})

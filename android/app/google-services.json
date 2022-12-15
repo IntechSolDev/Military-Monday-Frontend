@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "146220498129",
+    "project_id": "militaryapp-f11a9",
+    "storage_bucket": "militaryapp-f11a9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146220498129:android:f0b5174629b1ca694899f0",
+        "android_client_info": {
+          "package_name": "com.milatrymondayapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "146220498129-rp6ultfqq00k4au3r4ks5igjmln14vjg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5_Esd9ogGvIXXsV0lYo9EBs25GiGELoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "146220498129-rp6ultfqq00k4au3r4ks5igjmln14vjg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "146220498129-4scauso6pc8cus9md9qmk0itm5qe0ca2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.milatrymondayapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
